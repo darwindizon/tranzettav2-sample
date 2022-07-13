@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "clients",
+  "info": {
+    "singularName": "client",
+    "pluralName": "clients",
+    "displayName": "Client",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "apps": {
+      "type": "dynamiczone",
+      "components": [
+        "accounts.acumatica",
+        "accounts.bigcommerce",
+        "accounts.shopify"
+      ]
+    },
+    "token": {
+      "type": "text"
+    }
+  }
+}

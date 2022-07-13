@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_accounts_bigcommerces",
+  "info": {
+    "displayName": "Bigcommerce",
+    "icon": "book-medical"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "clientId": {
+      "type": "string"
+    },
+    "accessToken": {
+      "type": "string"
+    },
+    "responseType": {
+      "type": "string"
+    },
+    "storeHash": {
+      "type": "string"
+    },
+    "apiVersion": {
+      "type": "string"
+    }
+  }
+}

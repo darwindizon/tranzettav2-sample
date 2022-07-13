@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_accounts_shopifies",
+  "info": {
+    "displayName": "Shopify",
+    "icon": "book-reader"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "apiKey": {
+      "type": "string"
+    },
+    "password": {
+      "type": "password"
+    },
+    "baseUrl": {
+      "type": "string"
+    },
+    "apiVersion": {
+      "type": "string"
+    }
+  }
+}

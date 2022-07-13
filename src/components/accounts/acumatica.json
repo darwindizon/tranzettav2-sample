@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_accounts_acumaticas",
+  "info": {
+    "displayName": "Acumatica",
+    "icon": "book",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "baseUrl": {
+      "type": "string"
+    },
+    "entity": {
+      "type": "string"
+    },
+    "apiVersion": {
+      "type": "string"
+    },
+    "clientId": {
+      "type": "string"
+    },
+    "clientSecret": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "password": {
+      "type": "password"
+    },
+    "token": {
+      "type": "component",
+      "repeatable": false,
+      "component": "utils.token"
+    }
+  }
+}
