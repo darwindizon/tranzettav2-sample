@@ -2,14 +2,11 @@
   "collectionName": "components_accounts_acumaticas",
   "info": {
     "displayName": "Acumatica",
-    "icon": "book",
+    "icon": "chart-line",
     "description": ""
   },
   "options": {},
   "attributes": {
-    "name": {
-      "type": "string"
-    },
     "baseUrl": {
       "type": "string"
     },
@@ -31,10 +28,8 @@
     "password": {
       "type": "password"
     },
-    "token": {
-      "type": "component",
-      "repeatable": false,
-      "component": "utils.token"
+    "accessToken": {
+      "type": "string"
     }
   }
 }

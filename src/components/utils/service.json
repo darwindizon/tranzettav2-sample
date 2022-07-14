@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_utils_services",
+  "info": {
+    "displayName": "Service",
+    "icon": "suitcase-rolling",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "event": {
+      "type": "richtext"
+    },
+    "jobs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "utils.client"
+    }
+  }
+}

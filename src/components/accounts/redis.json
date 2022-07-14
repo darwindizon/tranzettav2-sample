@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_accounts_redis",
+  "info": {
+    "displayName": "Redis",
+    "icon": "memory",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "baseUrl": {
+      "type": "string"
+    },
+    "apiVersion": {
+      "type": "string"
+    }
+  }
+}

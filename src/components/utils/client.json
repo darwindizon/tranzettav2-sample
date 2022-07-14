@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_utils_clients",
+  "info": {
+    "displayName": "Client",
+    "icon": "user-friends",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "job": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::job.job"
+    },
+    "clients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::client.client"
+    }
+  }
+}

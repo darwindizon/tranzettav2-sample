@@ -28,7 +28,8 @@
       "components": [
         "accounts.acumatica",
         "accounts.bigcommerce",
-        "accounts.shopify"
+        "accounts.shopify",
+        "accounts.redis"
       ]
     },
     "token": {

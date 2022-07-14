@@ -1,0 +1,21 @@
+{
+  "kind": "singleType",
+  "collectionName": "global_services",
+  "info": {
+    "singularName": "global-service",
+    "pluralName": "global-services",
+    "displayName": "Global Service",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "actions": {
+      "type": "component",
+      "repeatable": true,
+      "component": "utils.service"
+    }
+  }
+}

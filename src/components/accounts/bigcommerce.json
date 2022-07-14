@@ -2,11 +2,12 @@
   "collectionName": "components_accounts_bigcommerces",
   "info": {
     "displayName": "Bigcommerce",
-    "icon": "book-medical"
+    "icon": "store",
+    "description": ""
   },
   "options": {},
   "attributes": {
-    "name": {
+    "baseUrl": {
       "type": "string"
     },
     "clientId": {

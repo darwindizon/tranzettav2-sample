@@ -1,16 +1,11 @@
 const OauthClient = require('client-oauth2');
 const axios = require('axios');
 const HttpWrapper = require('./helpers/http-wrapper');
-const Encrypter = require('./utils/encrypter')
-
 
 class AcumaticaClient extends HttpWrapper {
-  constructor(account, data) {
+  constructor(account) {
     super()
 
-    strapi.log.info(JSON.stringify(account));
-
-    this.data = data;
     this.account = account;
 
     this.OauthClient = new OauthClient({
@@ -20,55 +15,70 @@ class AcumaticaClient extends HttpWrapper {
       scopes: ['api'],
     });
     
-    
-    this.login();
+    this.login()
   }
 
   async login() {
-    let accessToken = ""; //this.account.token.accessToken; // for testing
-
-    if (!accessToken) {
-      const encrypter = new Encrypter(process.env.ENCRYPT_SECRET);
-      const password = encrypter.dencrypt(this.account.password);
-
-      const token = await this.OauthClient.owner.getToken(this.account.username, password)
-              .catch((err) => {  
-                strapi.log.error(JSON.stringify(err));
-              });
-
-      accessToken = token ? token.accessToken : "";
-
-      this.data.apps.some((i) => {
-        if(i.id === this.account.id) {
-          i.token.accessToken = accessToken;
-          return true;
-        }
+    try {    
+      this.axios = axios.create({
+        baseURL: `${this.account.baseUrl}/entity/${this.account.entity}/${this.account.apiVersion}`,
+        headers: {
+          Authorization: `Bearer ${this.account.accessToken}`,
+        },
       });
+  
+      this.axios.interceptors.response.use(
+        response => {
+          return response;
+        },
+        async error => {
+          const originalRequest = error.config;
+          
+          if (error.response.status === 401) {
+            const client = await strapi.service('api::client.client').findOneByField({ id: this.account.accountId });
 
-      // update access token in db
-      await strapi.service('api::client.client').update(this.data.id, { data: this.data });
+            const token = await this.OauthClient.owner.getToken(this.account.username, this.account.password);
+            
+            client.apps.forEach(app => {
+              if (app.__component === 'account.acumatica') {
+                app.accessToken = token.accessToken;
+              }
+            });
+            
+            await strapi.service('api::client.client').update(this.account.accountId, { data: client });
+            
+            originalRequest.headers['Authorization'] = `Bearer ${token.accessToken}`;
+  
+            return axios(originalRequest);
+          }
+  
+          return Promise.reject(error);
+        },
+      );
+    } catch(error) {
+      // console.log(error, 'error');
     }
-
-    this.axios = axios.create({
-      baseURL: `${this.account.baseUrl}/entity/Default/${this.account.apiVersion}`,
-      timeout: 10000,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
   }
   
   async getProduct(id, query) {
-    try {
-      return await this.get(`/StockItem/${id}`, query);
-    } catch(err) {
-      console.log(err, 'asdasd')
-    }
+    return await this.get(`/StockItem/${id}`, query);
+  }
+
+  async getProducts(query) {
+    return await this.get(`/StockItem`, query);
+  }
+
+  async getItemSalesCategory(query) {
+    return await this.get(`/ItemSalesCategory`, query);
+  }
+
+  async getCustomers(query) {
+    return await this.get(`/Customer`, query);
   }
 }
 
 module.exports =
   ({ strapi }) =>
-  (account, data) => {
-    return new AcumaticaClient(account, data);
+  (account) => {
+    return new AcumaticaClient(account);
   };

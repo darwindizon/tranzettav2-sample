@@ -5,19 +5,20 @@
  */
 module.exports = {
   connection: async (ctx, next) => {
-    const { client, service, apps } = ctx.state;
+    const { actions } = ctx.state
+    const { service } = ctx.params
+    const { scope } = ctx.query;
+    
+    let result;
 
-    //strapi.log.info(JSON.stringify(client));
-    //strapi.log.info(JSON.stringify(service));
+    try {
+      result = await actions[(scope ?? 'local')][service](ctx.state);
+    } catch (error) {
+      return ctx.badRequest('Invalid Service', {
+        message: error.message
+      });
+    }
 
-    //strapi.log.info(apps);
-    //strapi.log.info(service.event);
-
-    const result = await eval(" async (apps) => {" + service.event + "}; ")(apps);
-
-    //strapi.log.error(JSON.stringify(ctx.res));
-
-    //const data = await actions[service](client);
     await next();
 
     return result;

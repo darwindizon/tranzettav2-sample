@@ -8,8 +8,7 @@ class HttpWrapper {
   }
 
   async post(entity, data) {
-    const response = this.axios.post(entity, data);
-
+    const response = await this.axios.post(entity, data);
     return response.data;
   }
 
