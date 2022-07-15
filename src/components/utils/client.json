@@ -16,6 +16,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::client.client"
+    },
+    "name": {
+      "type": "string"
     }
   }
 }

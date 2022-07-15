@@ -16,7 +16,9 @@
     "axios": "^0.27.2",
     "better-sqlite3": "7.4.6",
     "client-oauth2": "^4.3.3",
+    "cron-job-manager": "^2.3.0",
     "crypto": "^1.0.1",
+    "friendly-node-cron": "^1.4.1",
     "node-bigcommerce": "^4.1.0"
   },
   "author": {

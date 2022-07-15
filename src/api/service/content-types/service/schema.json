@@ -20,12 +20,6 @@
       "relation": "oneToOne",
       "target": "api::client.client"
     },
-    "job": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::job.job",
-      "inversedBy": "services"
-    },
     "event": {
       "type": "richtext"
     }

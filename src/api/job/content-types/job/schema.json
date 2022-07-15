@@ -15,12 +15,6 @@
     "name": {
       "type": "string"
     },
-    "services": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::service.service",
-      "mappedBy": "job"
-    },
     "active": {
       "type": "boolean",
       "default": false
@@ -28,6 +22,11 @@
     "schedule": {
       "type": "string",
       "default": "* * * * *"
+    },
+    "services": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::service.service"
     }
   }
 }
