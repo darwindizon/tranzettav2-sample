@@ -38,7 +38,20 @@ module.exports = {
 
       const globalModules = await strapi.entityService.findMany('api::global-service.global-service', { 
         populate: { 
-          actions : true
+          actions : {
+            populate : {
+              jobs: {
+                populate: {
+                  job: true,
+                  clients: {
+                    populate: {
+                      apps: true
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       });
 
@@ -101,19 +114,94 @@ module.exports = {
         }
       };
 
+      const _setAppsDataClass = async (app, clientStage, accountId) => {
+        if (!app) {
+          return;
+        }
+
+        if (app.__component === 'accounts.acumatica' && !clientStage.apps.ac) {
+          clientStage.apps.ac = await strapi.service('api::tranzetta.acumatica-wrapper')({ ...app, accountId });
+        } else if (app.__component === 'accounts.bigcommerce' && !clientStage.apps.bc) {
+          clientStage.apps.bc = await strapi.service('api::tranzetta.bigcommerce-wrapper')(app);
+        } else if (app.__component === 'accounts.shopify' && !clientStage.apps.sp) {
+          clientStage.apps.sp = null;
+        } else if (app.__component === 'accounts.redis' && !clientStage.apps.rd) {
+          clientStage.apps.rd = null;
+        }
+      };
+
+      for(let x = 0; x < globalModules.actions.length; x++) {
+        const action = globalModules.actions[x];
+
+        for (let y = 0; y < action.jobs.length; y++) {
+          const job = action.jobs[y].job;
+          if (!job) {
+            continue;
+          }
+
+          for (let z = 0; z < action.jobs[y].clients.length; z++) {
+            const client = action.jobs[y].clients[z];
+
+            if (!state[client.id]) {
+              state[client.id] = {
+                apps: {},
+                actions: {
+                  local: {},
+                  global: {}
+                }
+              };
+            }
+
+            for(let v = 0; v < client?.apps.length; v++) {
+              const app = client.apps[x];
+
+              await _setAppsDataClass(app, state[client.id], client.id);
+            }
+
+            await _getActionsEvent({
+              name: action.name,
+              event: action.event,
+              client: client
+            }, 'global', state[client.id]);
+            
+          }
+          
+          if (job.schedule) {
+            global.manager.add(
+              `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`, 
+              translate(job.schedule),
+              async () => {
+                for (let z = 0; z < action.jobs[y].clients.length; z++) {
+                  const client = action.jobs[y].clients[z];
+                  const jobsDone = await state[client.id].actions.global[action.name](state[client.id]);
+                  
+                  console.log(`#################### \nScope: Global \nAction: ${action.name} \nJob Run: ${job.name} \nClient: ${client.name} \nOutput: ${jobsDone}`);                
+                }
+              },
+              { // options
+                start: true,
+                onComplete: () => {
+                  //do something
+                  console.log('runs when the job is stopped');
+                },
+              }
+            );
+          }
+        }
+      }
+
       for (let y = 0; y < results.length; y++) {
         const job = results[y];
 
-        if (!job.active) {
-          break;
+        if (!job.active || !job.schedule) {
+          continue;
         }
 
         global.manager.add(
-          `${job.id}-${job.name}`, // name
+          `local::${job.id}-${job.name}`, // name
           translate(job.schedule), // schedule
           async () => { 
             // event
-            
             for(let z = 0; z < job?.services?.length; z++) {
               const service = job.services[z];
               // event(state)
@@ -130,19 +218,9 @@ module.exports = {
                 }
                 
                 for(let x = 0; x < service?.client?.apps.length; x++) {
-                  const data = service.client.apps[x];
-        
-                  if (data) {
-                    if (data.__component === 'accounts.acumatica' && !state[service.client.id].apps.ac) {
-                      state[service?.client.id].apps.ac = await strapi.service('api::tranzetta.acumatica-wrapper')({ ...data, accountId: service.client.id });
-                    } else if (data.__component === 'accounts.bigcommerce' && !state[service.client.id].apps.bc) {
-                      state[service?.client.id].apps.bc = await strapi.service('api::tranzetta.bigcommerce-wrapper')(data);
-                    } else if (data.__component === 'accounts.shopify' && !state[service.client.id].apps.sp) {
-                      state[service?.client.id].apps.sp = null;
-                    } else if (data.__component === 'accounts.redis' && !state[service.client.id].apps.rd) {
-                      state[service?.client.id].apps.rd = null;
-                    }
-                  }
+                  const app = service.client.apps[x];
+
+                  await _setAppsDataClass(app, state[service.client.id], service.client.id);
                 }
               }
 
@@ -150,8 +228,8 @@ module.exports = {
               // const event = eval(`async ({ apps, actions }) => { ${ service.event } }`);
 
               const jobsDone = await state[service.client.id].actions.local[service.name](state[service.client.id]);
+              console.log(`#################### \nScope: Local \nJOB: ${job.name} \nService Run: ${service.name} \nClient: ${service.client.name} \nOutput: ${jobsDone}`);
             }
-
           }, 
           { // options
             start: true,
