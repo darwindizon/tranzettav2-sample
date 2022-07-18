@@ -133,8 +133,13 @@ module.exports = {
       for(let x = 0; x < globalModules.actions.length; x++) {
         const action = globalModules.actions[x];
 
+        if (!action.active) {
+          continue;
+        }
+
         for (let y = 0; y < action.jobs.length; y++) {
           const job = action.jobs[y].job;
+          
           if (!job) {
             continue;
           }
