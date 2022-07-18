@@ -5,7 +5,12 @@ module.exports = (plugin) => {
 
     plugin.controllers['collection-types'].update = async (ctx) => {
          await updateOriginal(ctx);
-         console.log(global.manager);
+
+         const { model } = ctx.params;
+         
+         if (model === 'api::job.job') {
+            console.log(global.manager);
+         }
      };
 
      plugin.controllers['collection-types'].delete = async (ctx) => {

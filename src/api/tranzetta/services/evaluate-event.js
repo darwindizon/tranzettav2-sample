@@ -45,6 +45,8 @@ class ServiceEventHandler {
   }
 
   async getActions(service, src = 'local') {
+    await this.getClientsApps();
+
     const generalParams = '({ apps, actions })';
     
     const _regexServices = new RegExp("{{local.*}}|{{global.*}}", "gim");
@@ -93,6 +95,10 @@ class ServiceEventHandler {
 
         this.state.actions[src][service] = eval(`async ${generalParams} => { ${action.event} }`);
     }
+  }
+
+  async updateSchedule() {
+    
   }
 }
 
