@@ -34,14 +34,21 @@ class ServiceEventHandler {
   async getGlobalService() {
     await this.getClientsApps();
 
-    const modules = await strapi.entityService.findMany('api::global-service.global-service', { 
-        populate: { 
-          actions : true
+    try {
+      const modules = await strapi.entityService.findMany('api::global-service.global-service', {
+          populate: { 
+            actions : true,
+            clients :  true
+          }
         }
-      }
-    );
+      );
 
-    this.globalService.push(...modules.actions);
+      if (modules.clients.some(i => i.id === this.state.client.id)) {
+        this.globalService.push(...modules.actions);
+      }
+    } catch (error) {
+      console.log(error, 'hey')
+    }
   }
 
   async getActions(service, src = 'local') {
@@ -56,7 +63,7 @@ class ServiceEventHandler {
         if (this.globalService.length === 0) {
             await this.getGlobalService();
         }
-
+        console.log(this.globalService, 'this.globalService');
         action = await this.globalService.find(i => i.name === service);
     } else {
         action = await strapi.service('api::service.service').findOneByField({ name: service, client: { id: this.state.client.id } });

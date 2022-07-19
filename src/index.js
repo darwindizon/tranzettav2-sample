@@ -72,7 +72,6 @@ module.exports = {
             continue;
           }
           
-          
           global.manager.add(
             `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`, 
             translate(job.schedule),
