@@ -14,6 +14,7 @@ module.exports =
       if (!ctx.state.apps) {
         ctx.state.apps = {};
       }
+      
       await strapi.service('api::tranzetta.evaluate-event')(ctx.state).getActions(service, scope);
     } else {
       return ctx.unauthorized('Unauthorized Request');

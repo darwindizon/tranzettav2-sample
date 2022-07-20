@@ -1,4 +1,4 @@
-
+const translate = require('friendly-node-cron');
 
 class ServiceEventHandler {
   constructor(state) {
@@ -63,7 +63,7 @@ class ServiceEventHandler {
         if (this.globalService.length === 0) {
             await this.getGlobalService();
         }
-        console.log(this.globalService, 'this.globalService');
+        
         action = await this.globalService.find(i => i.name === service);
     } else {
         action = await strapi.service('api::service.service').findOneByField({ name: service, client: { id: this.state.client.id } });
@@ -102,10 +102,6 @@ class ServiceEventHandler {
 
         this.state.actions[src][service] = eval(`async ${generalParams} => { ${action.event} }`);
     }
-  }
-
-  async updateSchedule() {
-    
   }
 }
 
