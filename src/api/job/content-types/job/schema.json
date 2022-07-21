@@ -21,7 +21,8 @@
     },
     "schedule": {
       "type": "string",
-      "default": "* * * * *"
+      "default": "* * * * *",
+      "required": true
     },
     "services": {
       "type": "relation",
