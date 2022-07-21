@@ -10,10 +10,10 @@ module.exports = {
     const { scope } = ctx.query;
     
     let result;
-
     try {
       result = await actions[(scope ?? 'local')][service](ctx.state);
     } catch (error) {
+
       return ctx.badRequest('Invalid Service', {
         message: error.message
       });

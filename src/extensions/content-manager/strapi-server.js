@@ -17,7 +17,7 @@ module.exports = (plugin) => {
          state[service.client.id].client = service.client;
 
          await strapi.service('api::tranzetta.evaluate-event')(state[service.client.id]).getActions(service.name, 'local');
-
+         
          const jobsDone = await state[service.client.id]?.actions.local[service.name](state[service.client.id]);
          console.log(`#################### \nScope: Local \nJOB: ${job.name} \nService Run: ${service.name} \nClient: ${service.client.name} \nOutput: ${jobsDone}`);
       }
@@ -56,6 +56,8 @@ module.exports = (plugin) => {
             } else {
                global.manager.stop(`local::${job.id}-${job.name}`);
             }
+         } else if (model === 'api::service.service') {
+
          }
      };
 
@@ -65,7 +67,9 @@ module.exports = (plugin) => {
         if (ctx.params.model === 'api::job.job') {
             const job = ctx.response.body;
             global.manager.deleteJob(`local::${job.id}-${job.name}`);
-        }
+        } else if (model === 'api::service.service') {
+            
+         }
      };
 
      plugin.controllers['collection-types'].create = async (ctx) => {
@@ -105,6 +109,8 @@ module.exports = (plugin) => {
                   },
                }
             );
+         } else if (model === 'api::service.service') {
+            
          }
      };
   
