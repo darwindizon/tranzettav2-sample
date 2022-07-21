@@ -73,7 +73,7 @@ module.exports = {
           }
           
           global.manager.add(
-            `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`, 
+            `global::${action.id}-${action.jobs[y].id}`, 
             translate(job.schedule),
             async () => {
               for (let z = 0; z < action.jobs[y].clients.length; z++) {
@@ -89,7 +89,7 @@ module.exports = {
 
                 const jobsDone = await state[client.id].actions.global[action.name](state[client.id]);
                 
-                console.log(`#################### \nScope: Global \nAction: ${action.name} \nJob Run: ${job.name} \nClient: ${client.name} \nOutput: ${jobsDone}`);                
+                console.log(`#################### \nScope: Global \nAction: ${action.name} \nJob Run: ${job.id} \nClient: ${client.name} \nOutput: ${jobsDone}`);                
               }
             },
             { // options
@@ -111,7 +111,7 @@ module.exports = {
         }
 
         global.manager.add(
-          `local::${job.id}-${job.name}`, // name
+          `local::${job.id}`, // name
           translate(job.schedule), // schedule
           async () => { 
             // event

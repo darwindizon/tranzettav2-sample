@@ -81,7 +81,7 @@ module.exports = (plugin) => {
          
          globalModules.actions.forEach(action => {
             action.jobs.forEach(job => {
-               const key = `global::${action.id}-${action.name}-${job.id}-${job.name}`;
+               const key = `global::${action.id}-${job.id}`;
 
                if ((!ctx.request.body?.actions?.some(i => action.id === i.id) || 
                   !ctx.request.body?.actions?.jobs?.some(i => i.id === job.id)) &&
@@ -104,7 +104,7 @@ module.exports = (plugin) => {
             for (let y = 0; y < action.jobs.length; y++) {
                const job = action.jobs[y].job;
                
-               const key = `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`;
+               const key = `global::${action.id}-${action.jobs[y].id}`;
                
                if (!action.active || !job || !job.schedule) {
                   if (global.manager.exists(key)) {
@@ -128,7 +128,7 @@ module.exports = (plugin) => {
          
                            const jobsDone = await state[client.id].actions.global[action.name](state[client.id]);
                            
-                           console.log(`#################### \nScope: Global \nAction: ${action.name} \nJob Run: ${job.name} \nClient: ${client.name} \nOutput: ${jobsDone}`);                
+                           console.log(`#################### \nScope: Global \nAction: ${action.name} \nJob Run: ${job.id} \nClient: ${client.name} \nOutput: ${jobsDone}`);                
                         }
                      }, 
                      { // options
@@ -157,7 +157,7 @@ module.exports = (plugin) => {
             const action = globalModules.actions[x];
     
             for (let y = 0; y < action.jobs.length; y++) {
-               const key = `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`;
+               const key = `global::${action.id}-${action.jobs[y].id}`;
                
                global.manager.deleteJob(key);
             }
@@ -166,9 +166,9 @@ module.exports = (plugin) => {
    }
    
    plugin.controllers['collection-types'].update = async (ctx) => {
-      await updateOriginal(ctx);
-
       const { model } = ctx.params;
+
+      await updateOriginal(ctx);
       
       if (model === 'api::job.job') {
          const state = {};
@@ -176,8 +176,9 @@ module.exports = (plugin) => {
 
          const job = await _findJob(_job.id);
 
-         const key = `local::${job.id}-${job.name}`;
-         if (job.active) {
+         const key = `local::${job.id}`;
+
+         if (job.active && job.schedule && job.services.length > 0) {
             global.manager[global.manager.exists(key) ? 'update' : 'add'](
                key,
                translate(job.schedule),
@@ -201,7 +202,7 @@ module.exports = (plugin) => {
 
       if (ctx.params.model === 'api::job.job') {
          const job = ctx.response.body;
-         const key = `local::${job.id}-${job.name}`;
+         const key = `local::${job.id}`;
          
          if (global.manager.exists(key)) {
             global.manager.deleteJob(key);
@@ -223,7 +224,7 @@ module.exports = (plugin) => {
          }
    
          global.manager.add(
-            `local::${job.id}-${job.name}`, // name
+            `local::${job.id}`, // name
             translate(job.schedule), // schedule
             async () => await setEventsAction(job, state), 
             { // options
