@@ -16,10 +16,14 @@ module.exports = (plugin) => {
 
          state[service.client.id].client = service.client;
 
-         await strapi.service('api::tranzetta.evaluate-event')(state[service.client.id]).getActions(service.name, 'local');
-         
-         const jobsDone = await state[service.client.id]?.actions.local[service.name](state[service.client.id]);
-         console.log(`#################### \nScope: Local \nJOB: ${job.name} \nService Run: ${service.name} \nClient: ${service.client.name} \nOutput: ${jobsDone}`);
+         try {
+            await strapi.service('api::tranzetta.evaluate-event')(state[service.client.id]).getActions(service.name, 'local');
+            
+            const jobsDone = await state[service.client.id]?.actions.local[service.name](state[service.client.id]);
+            console.log(`#################### \nScope: Local \nJOB: ${job.name} \nService Run: ${service.name} \nClient: ${service.client.name} \nOutput: ${jobsDone}`);            
+         } catch (error) {
+            console.log(error);
+         }
       }
    };
 
@@ -47,14 +51,22 @@ module.exports = (plugin) => {
              }
             );
 
+            const key = `local::${job.id}-${job.name}`;
             if (job.active) {
-               global.manager.update(
-                  `local::${job.id}-${job.name}`,
+               global.manager[global.manager.exists(key) ? 'update' : 'add'](
+                  key,
                   translate(job.schedule),
                   async () => await setEventsAction(job, state), 
+                  { // options
+                     start: true,
+                     onComplete: () => {
+                        //do something
+                        console.log('runs when the job is stopped');
+                     },
+                  }
                );
             } else {
-               global.manager.stop(`local::${job.id}-${job.name}`);
+               global.manager.deleteJob(key);
             }
          } else if (model === 'api::service.service') {
 

@@ -20,8 +20,9 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   bootstrap({ strapi }) {
-    (async () => {
+    global.manager = new CronJobManager();
 
+    (async () => {
       const { results } = await strapi.service('api::job.job').find({
         populate: {
           services: {
@@ -55,7 +56,6 @@ module.exports = {
         }
       });
 
-      global.manager = new CronJobManager();
       const state = {};
 
       for(let x = 0; x < globalModules.actions.length; x++) {
