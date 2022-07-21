@@ -78,22 +78,18 @@ module.exports = (plugin) => {
       // before update handle if actions are deleted
       if (model === 'api::global-service.global-service') {
          const globalModules = await _findGlobalModules();
+         
+         globalModules.actions.forEach(action => {
+            action.jobs.forEach(job => {
+               const key = `global::${action.id}-${action.name}-${job.id}-${job.name}`;
 
-         if (globalModules?.actions?.length !== ctx.request.body?.actions?.length) {
-            if (globalModules.actions.length > ctx.request.body?.actions?.length) {
-               const difference = globalModules.actions.filter(x => !ctx.request.body?.actions.some(i => x.id === i.id));
-               
-               for(let x = 0; x < difference.length; x++) {
-                  const action = difference[x];
-                  for (let y = 0; y < action.jobs.length; y++) {
-                     const job = action.jobs[y].job;
-                     
-                     const key = `global::${action.id}-${action.name}-${action.jobs[y].id}-${action.jobs[y].name}`;
-                     global.manager.deleteJob(key);    
-                  }
+               if ((!ctx.request.body?.actions?.some(i => action.id === i.id) || 
+                  !ctx.request.body?.actions?.jobs?.some(i => i.id === job.id)) &&
+                  global.manager.exists(key)) {
+                  global.manager.deleteJob(key); 
                }
-            }
-         }
+            });
+         });
       }
 
       await updateSingleTypesOriginal(ctx);
@@ -205,7 +201,11 @@ module.exports = (plugin) => {
 
       if (ctx.params.model === 'api::job.job') {
          const job = ctx.response.body;
-         global.manager.deleteJob(`local::${job.id}-${job.name}`);
+         const key = `local::${job.id}-${job.name}`;
+         
+         if (global.manager.exists(key)) {
+            global.manager.deleteJob(key);
+         }
       }
    };
 
