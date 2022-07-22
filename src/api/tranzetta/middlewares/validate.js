@@ -6,8 +6,14 @@ module.exports =
     const { scope } = ctx.query;
 
     // verify client token and service
-    const key = authorization.split(' ');
-    const clientData = await strapi.service('api::client.client').findOneByField({ token: key[1], active: true });
+    const key = authorization.split(' ')[1];
+    const result = await strapi.service('api::tranzetta.token')().verifyToken(key);
+    
+    if(!result.isValid)
+      return ctx.unauthorized('Unauthorized Request');
+
+    const { id, name } = result.payload;
+    const clientData = await strapi.service('api::client.client').findOneByField({ id: id, active: true });
 
     if(clientData) {
       ctx.state.client = clientData ?? null;
@@ -20,5 +26,5 @@ module.exports =
       return ctx.unauthorized('Unauthorized Request');
     }
 
-    await next(); 
+    await next();
   };

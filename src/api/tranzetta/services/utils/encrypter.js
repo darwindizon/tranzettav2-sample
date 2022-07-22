@@ -1,24 +1,36 @@
-const crypto = require('crypto');
+const _ = require('lodash');
+const jwt = require('jsonwebtoken');
 
-class Encrypter {
-  constructor(encryptionKey) {
-    this.algorithm = 'aes-192-cbc';
-    this.key = crypto.scryptSync(encryptionKey, 'tranzetta', 24);
+//const defaultJwtOptions = { expiresIn: '30d' };
+const defaultJwtOptions = {};
+
+const getTokenOptions = () => {
+  const { options, secret } = strapi.config.get('admin.auth', {});
+
+  return {
+    secret,
+    options: _.merge(defaultJwtOptions, options),
+  };
+};
+
+const createJwtToken = client => {
+  const { options, secret } = getTokenOptions();
+
+  return jwt.sign({ id: client.id, name: client.name }, secret, options);
+};
+
+const decodeJwtToken = token => {
+  const { secret } = getTokenOptions();
+
+  try {
+    const payload = jwt.verify(token, secret);
+    return { payload, isValid: true };
+  } catch (err) {
+    return { payload: null, isValid: false };
   }
+};
 
-  encrypt(clearText) {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(this.algorithm, this.key, iv);
-    const encrypted = cipher.update(clearText, 'utf8', 'hex');
-    return [encrypted + cipher.final('hex'), Buffer.from(iv).toString('hex')].join('|');
-  }
-
-  dencrypt(encryptedText) {
-    const [encrypted, iv] = encryptedText.split('|');
-    if (!iv) throw new Error('IV not found');
-    const decipher = crypto.createDecipheriv(this.algorithm, this.key, Buffer.from(iv, 'hex'));
-    return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
-  }
-}
-
-module.exports = Encrypter;
+module.exports = {
+  createJwtToken,
+  decodeJwtToken,
+};

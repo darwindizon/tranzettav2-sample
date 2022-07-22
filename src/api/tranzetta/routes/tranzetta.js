@@ -6,6 +6,7 @@ module.exports = {
       path: '/v1/tranzetta/:service',
       handler: 'tranzetta.connection',
       config: {
+        auth: false,
         middlewares: ['api::tranzetta.validate'],
       },
     },

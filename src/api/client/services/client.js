@@ -15,7 +15,7 @@ module.exports = createCoreService(
           .query('api::client.client')
           .findOne({
             where: entity,
-            populate: ["apps", "apps.token" ],
+            populate: ["apps"],
           });
   
         return client;
